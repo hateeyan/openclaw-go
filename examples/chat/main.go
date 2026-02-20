@@ -91,7 +91,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("ChatHistory: %v", err)
 	}
-	fmt.Printf("History entries: %d\n", len(history))
+	fmt.Printf("History response: %d bytes\n", len(history))
 
 	fmt.Println("\n=== Done ===")
 }
