@@ -1,5 +1,12 @@
 # openclaw-go
 
+[![CI](https://github.com/a3tai/openclaw-go/actions/workflows/ci.yml/badge.svg)](https://github.com/a3tai/openclaw-go/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/a3tai/openclaw-go/branch/main/graph/badge.svg)](https://codecov.io/gh/a3tai/openclaw-go)
+[![Go Report Card](https://goreportcard.com/badge/github.com/a3tai/openclaw-go)](https://goreportcard.com/report/github.com/a3tai/openclaw-go)
+[![Go Reference](https://pkg.go.dev/badge/github.com/a3tai/openclaw-go.svg)](https://pkg.go.dev/github.com/a3tai/openclaw-go)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/a3tai/openclaw-go)](go.mod)
+
 Go client library for [OpenClaw](https://openclaw.ai) -- the open gateway for AI agents.
 
 Provides typed clients for the Gateway WebSocket protocol, OpenAI-compatible HTTP APIs, local network discovery, and the Agent Client Protocol (ACP).
