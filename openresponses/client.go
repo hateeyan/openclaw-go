@@ -190,9 +190,12 @@ func (s *Stream) Close() error {
 
 // HTTPError represents a non-200 response from the gateway.
 type HTTPError struct {
+	// StatusCode is the HTTP response status code.
 	StatusCode int
+	// Body is the response body truncated to 4096 bytes.
 	Body       string
-	RetryAfter string // Value of the Retry-After header, if present.
+	// RetryAfter is the value of the Retry-After header, if present.
+	RetryAfter string
 }
 
 func (e *HTTPError) Error() string {

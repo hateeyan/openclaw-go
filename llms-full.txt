@@ -314,7 +314,7 @@ err := client.ConfigApply(ctx, protocol.ConfigApplyParams{Restart: true})
 
 ```go
 result, err := client.ExecApprovalRequest(ctx, protocol.ExecApprovalRequestParams{...})
-result, err := client.ResolveExecApproval(ctx, protocol.ExecApprovalResolveParams{
+result, err := client.ExecApprovalResolve(ctx, protocol.ExecApprovalResolveParams{
     ID: "approval-id", Decision: "approved",
 })
 result, err := client.ExecApprovalWaitDecision(ctx, protocol.ExecApprovalWaitDecisionParams{ID: id})
