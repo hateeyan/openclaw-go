@@ -136,8 +136,11 @@ func (c *Client) Invoke(ctx context.Context, req Request) (*Response, error) {
 
 // HTTPError represents a non-JSON or transport-level error.
 type HTTPError struct {
+	// StatusCode is the HTTP response status code.
 	StatusCode int
+	// Body is the raw response body.
 	Body       string
+	// RetryAfter is the value of the Retry-After header, if present.
 	RetryAfter string
 }
 
@@ -151,8 +154,11 @@ func (e *HTTPError) Error() string {
 
 // InvokeError represents a structured error from the tools/invoke endpoint.
 type InvokeError struct {
+	// StatusCode is the HTTP response status code.
 	StatusCode int
+	// Type is the machine-readable error type from the gateway.
 	Type       string
+	// Message is the human-readable error message from the gateway.
 	Message    string
 }
 

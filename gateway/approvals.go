@@ -6,9 +6,9 @@ import (
 	"github.com/a3tai/openclaw-go/protocol"
 )
 
-// ResolveExecApproval resolves a pending exec approval request.
+// ExecApprovalResolve resolves a pending exec approval request.
 // Requires the operator.approvals scope.
-func (c *Client) ResolveExecApproval(ctx context.Context, params protocol.ExecApprovalResolveParams) (*protocol.ExecApprovalResolveResult, error) {
+func (c *Client) ExecApprovalResolve(ctx context.Context, params protocol.ExecApprovalResolveParams) (*protocol.ExecApprovalResolveResult, error) {
 	var result protocol.ExecApprovalResolveResult
 	if err := c.sendRPCTyped(ctx, "exec.approval.resolve", params, &result); err != nil {
 		return nil, err

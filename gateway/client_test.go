@@ -630,7 +630,7 @@ func TestPresenceUnmarshalError(t *testing.T) {
 
 // --- Exec approval resolve ---
 
-func TestResolveExecApproval(t *testing.T) {
+func TestExecApprovalResolve(t *testing.T) {
 	mg, wsURL, cleanup := startMockGateway(t)
 	defer cleanup()
 
@@ -651,18 +651,18 @@ func TestResolveExecApproval(t *testing.T) {
 		t.Fatalf("Connect: %v", err)
 	}
 
-	_, err := client.ResolveExecApproval(ctx, protocol.ExecApprovalResolveParams{
+	_, err := client.ExecApprovalResolve(ctx, protocol.ExecApprovalResolveParams{
 		ID:       "approval-1",
 		Decision: "approved",
 	})
 	if err != nil {
-		t.Fatalf("ResolveExecApproval: %v", err)
+		t.Fatalf("ExecApprovalResolve: %v", err)
 	}
 }
 
 // --- Exec approval resolve: error with payload ---
 
-func TestResolveExecApprovalError(t *testing.T) {
+func TestExecApprovalResolveError(t *testing.T) {
 	mg, wsURL, cleanup := startMockGateway(t)
 	defer cleanup()
 
@@ -685,7 +685,7 @@ func TestResolveExecApprovalError(t *testing.T) {
 		t.Fatalf("Connect: %v", err)
 	}
 
-	_, err := client.ResolveExecApproval(ctx, protocol.ExecApprovalResolveParams{
+	_, err := client.ExecApprovalResolve(ctx, protocol.ExecApprovalResolveParams{
 		ID: "approval-1", Decision: "approved",
 	})
 	if err == nil {
@@ -1202,9 +1202,9 @@ func TestPresenceSendError(t *testing.T) {
 	}
 }
 
-// --- ResolveExecApproval: Send returns error (connection closed) ---
+// --- ExecApprovalResolve: Send returns error (connection closed) ---
 
-func TestResolveExecApprovalSendError(t *testing.T) {
+func TestExecApprovalResolveSendError(t *testing.T) {
 	_, wsURL, cleanup := startMockGateway(t)
 	defer cleanup()
 
@@ -1220,7 +1220,7 @@ func TestResolveExecApprovalSendError(t *testing.T) {
 	// Close client first.
 	client.Close()
 
-	_, err := client.ResolveExecApproval(ctx, protocol.ExecApprovalResolveParams{
+	_, err := client.ExecApprovalResolve(ctx, protocol.ExecApprovalResolveParams{
 		ID: "approval-1", Decision: "approved",
 	})
 	if err == nil {

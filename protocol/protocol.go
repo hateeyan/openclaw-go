@@ -45,6 +45,7 @@ const (
 // Error Codes
 // ---------------------------------------------------------------------------
 
+// Error codes returned in gateway RPC error responses.
 const (
 	ErrorCodeNotLinked      = "NOT_LINKED"
 	ErrorCodeNotPaired      = "NOT_PAIRED"
@@ -57,6 +58,7 @@ const (
 // Client IDs
 // ---------------------------------------------------------------------------
 
+// Known client ID values for ClientInfo.ID.
 const (
 	ClientIDWebchatUI   = "webchat-ui"
 	ClientIDControlUI   = "openclaw-control-ui"
@@ -76,6 +78,7 @@ const (
 // Client Modes
 // ---------------------------------------------------------------------------
 
+// Client mode values for ClientInfo.Mode.
 const (
 	ClientModeWebchat = "webchat"
 	ClientModeCLI     = "cli"
@@ -90,6 +93,7 @@ const (
 // Client Capabilities
 // ---------------------------------------------------------------------------
 
+// Client capability values for ConnectParams.Caps.
 const (
 	ClientCapToolEvents = "tool-events"
 )
@@ -101,6 +105,7 @@ const (
 // FrameType identifies the kind of WebSocket frame.
 type FrameType string
 
+// Frame type constants for use with RawFrame, Request, Response, and Event.
 const (
 	FrameTypeRequest        FrameType = "req"
 	FrameTypeResponse       FrameType = "res"
@@ -161,6 +166,7 @@ type RawFrame struct {
 // Role identifies a connection's role in the gateway.
 type Role string
 
+// Role constants for ConnectParams.Role.
 const (
 	RoleOperator Role = "operator"
 	RoleNode     Role = "node"
@@ -169,6 +175,7 @@ const (
 // Scope is a capability scope for operator connections.
 type Scope string
 
+// Scope constants for ConnectParams.Scopes.
 const (
 	ScopeOperatorRead      Scope = "operator.read"
 	ScopeOperatorWrite     Scope = "operator.write"

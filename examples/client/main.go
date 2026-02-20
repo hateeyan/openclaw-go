@@ -96,12 +96,12 @@ func demonstrateGateway(ctx context.Context) {
 
 	// Resolve an exec approval.
 	fmt.Println("  Resolving exec approval...")
-	_, err = client.ResolveExecApproval(ctx, protocol.ExecApprovalResolveParams{
+	_, err = client.ExecApprovalResolve(ctx, protocol.ExecApprovalResolveParams{
 		ID:       "approval-example",
 		Decision: "approved",
 	})
 	if err != nil {
-		log.Fatalf("  ResolveExecApproval: %v", err)
+		log.Fatalf("  ExecApprovalResolve: %v", err)
 	}
 	fmt.Println("  Approval resolved successfully")
 

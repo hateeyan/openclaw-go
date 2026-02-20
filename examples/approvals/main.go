@@ -85,12 +85,12 @@ func main() {
 
 	// --- Resolve approvals ---
 	fmt.Println("--- Resolve Exec Approval ---")
-	resolveResult, err := client.ResolveExecApproval(ctx, protocol.ExecApprovalResolveParams{
+	resolveResult, err := client.ExecApprovalResolve(ctx, protocol.ExecApprovalResolveParams{
 		ID:       "approval-1",
 		Decision: "approved",
 	})
 	if err != nil {
-		fmt.Printf("ResolveExecApproval: %v\n", err)
+		fmt.Printf("ExecApprovalResolve: %v\n", err)
 	} else {
 		fmt.Printf("Approval resolved: ok=%v\n", resolveResult.OK)
 	}
