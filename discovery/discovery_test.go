@@ -435,12 +435,17 @@ func TestParseAvahiBrowseNoTXT(t *testing.T) {
 func TestBrowseWithMock(t *testing.T) {
 	browser := &Browser{
 		runCmd: func(ctx context.Context, name string, args ...string) (string, error) {
+			// macOS: dns-sd -B / dns-sd -L
 			if name == "dns-sd" && args[0] == "-B" {
 				return ` 3:00:00.000  Add  2  4 local. _openclaw-gw._tcp. TestGateway`, nil
 			}
 			if name == "dns-sd" && args[0] == "-L" {
 				return ` 3:00:00.000  TestGateway._openclaw-gw._tcp.local. can be reached at testhost.local.:18789 (interface 4)
  displayName=TestGW	role=gateway	gatewayPort=18789`, nil
+			}
+			// Linux: avahi-browse -rpt
+			if name == "avahi-browse" {
+				return `=;eth0;IPv4;TestGateway;_openclaw-gw._tcp;local;testhost.local;192.168.1.10;18789;"displayName=TestGW" "role=gateway" "gatewayPort=18789"`, nil
 			}
 			return "", fmt.Errorf("unexpected cmd: %s %v", name, args)
 		},
@@ -484,8 +489,13 @@ func TestBrowseEmptyResult(t *testing.T) {
 func TestBrowseResolveError(t *testing.T) {
 	browser := &Browser{
 		runCmd: func(ctx context.Context, name string, args ...string) (string, error) {
-			if args[0] == "-B" {
+			// macOS: dns-sd -B returns an instance, but -L resolve fails
+			if name == "dns-sd" && args[0] == "-B" {
 				return ` 3:00:00.000  Add  2  4 local. _openclaw-gw._tcp. TestGateway`, nil
+			}
+			// Linux: avahi-browse returns nothing useful
+			if name == "avahi-browse" {
+				return "", nil
 			}
 			// Resolve returns nothing useful.
 			return "", nil
