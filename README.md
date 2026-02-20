@@ -197,6 +197,8 @@ Many thanks to [Peter Steinberger](https://github.com/steipete) for creating
 His vision for an open, local-first AI gateway has made projects like this
 possible. With all love and respect.
 
+**Author:** Steve Rude <steve@a3t.ai>
+
 ### Links
 
 - [OpenClaw](https://openclaw.ai) -- the open gateway for AI agents
