@@ -201,8 +201,8 @@ func (c *Client) nextID() string {
 }
 
 func (c *Client) readChallenge(ctx context.Context) (*protocol.ConnectChallenge, error) {
-	c.conn.SetReadDeadline(time.Now().Add(c.opts.connectTimeout))
-	defer c.conn.SetReadDeadline(time.Time{})
+	_ = c.conn.SetReadDeadline(time.Now().Add(c.opts.connectTimeout))
+	defer func() { _ = c.conn.SetReadDeadline(time.Time{}) }()
 
 	_, msg, err := c.conn.ReadMessage()
 	if err != nil {
@@ -256,8 +256,8 @@ func (c *Client) buildConnectParams(challenge *protocol.ConnectChallenge) protoc
 }
 
 func (c *Client) readHelloOK(ctx context.Context, reqID string) error {
-	c.conn.SetReadDeadline(time.Now().Add(c.opts.connectTimeout))
-	defer c.conn.SetReadDeadline(time.Time{})
+	_ = c.conn.SetReadDeadline(time.Now().Add(c.opts.connectTimeout))
+	defer func() { _ = c.conn.SetReadDeadline(time.Time{}) }()
 
 	_, msg, err := c.conn.ReadMessage()
 	if err != nil {
@@ -355,7 +355,7 @@ func (c *Client) readLoop() {
 					default:
 					}
 					c.connMu.Lock()
-					c.conn.WriteMessage(websocket.TextMessage, data)
+					_ = c.conn.WriteMessage(websocket.TextMessage, data)
 					c.connMu.Unlock()
 				}()
 			}

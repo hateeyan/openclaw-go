@@ -314,7 +314,7 @@ func (s *Server) dispatch(ctx context.Context, req RPCRequest) {
 	case "session/cancel":
 		var params CancelNotification
 		if req.Params != nil {
-			json.Unmarshal(req.Params, &params)
+			_ = json.Unmarshal(req.Params, &params) // params are optional; zero value is valid fallback
 		}
 		s.handler.Cancel(ctx, params)
 		// No response for notifications.
@@ -385,7 +385,7 @@ func (s *Server) sendResult(id any, result any) {
 		ID:      id,
 		Result:  data,
 	}
-	s.writeMessage(resp)
+	_ = s.writeMessage(resp) // write failure is unrecoverable; read loop detects disconnect
 }
 
 func (s *Server) sendError(id any, code int, message string) {
@@ -394,7 +394,7 @@ func (s *Server) sendError(id any, code int, message string) {
 		ID:      id,
 		Error:   &RPCError{Code: code, Message: message},
 	}
-	s.writeMessage(resp)
+	_ = s.writeMessage(resp) // write failure is unrecoverable; read loop detects disconnect
 }
 
 func (s *Server) writeMessage(msg any) error {
