@@ -187,6 +187,22 @@ See the [`docs/`](docs/) directory for per-package API guides:
 - [Discovery](docs/discovery.md)
 - [Agent Client Protocol (ACP)](docs/acp.md)
 
+## About
+
+This project is independently maintained by [a3t.ai](https://a3t.ai) and is not
+officially affiliated with the OpenClaw project.
+
+Many thanks to [Peter Steinberger](https://github.com/steipete) for creating
+[OpenClaw](https://github.com/nicepkg/openclaw) and giving it to the world.
+His vision for an open, local-first AI gateway has made projects like this
+possible. With all love and respect.
+
+### Links
+
+- [OpenClaw](https://openclaw.ai) -- the open gateway for AI agents
+- [OpenClaw GitHub](https://github.com/nicepkg/openclaw)
+- [a3t.ai](https://a3t.ai) -- maintainers of this Go client library
+
 ## License
 
-See [LICENSE](LICENSE) for details.
+MIT -- see [LICENSE](LICENSE) for details.
