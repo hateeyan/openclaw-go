@@ -23,7 +23,8 @@ type options struct {
 	caps        []string
 	commands    []string
 	permissions map[string]bool
-	device      *protocol.DeviceIdentity
+	device        *protocol.DeviceIdentity
+	deviceSigner func(nonce string) *protocol.DeviceIdentity
 	locale      string
 	userAgent   string
 
