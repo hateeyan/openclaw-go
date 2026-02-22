@@ -244,7 +244,13 @@ func (c *Client) buildConnectParams(challenge *protocol.ConnectChallenge) protoc
 	}
 
 	// Device identity (includes challenge nonce for signing).
-	if c.opts.device != nil {
+	if c.opts.deviceSigner != nil {
+		nonce := ""
+		if challenge != nil {
+			nonce = challenge.Nonce
+		}
+		params.Device = c.opts.deviceSigner(nonce)
+	} else if c.opts.device != nil {
 		dev := *c.opts.device
 		if challenge != nil {
 			dev.Nonce = challenge.Nonce

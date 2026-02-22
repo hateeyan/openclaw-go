@@ -92,3 +92,66 @@ go build ./examples/...
 
 By contributing, you agree that your contributions will be licensed under the
 MIT License. See [LICENSE](LICENSE).
+
+## Releasing
+
+This section is for maintainers with push access to the repository.
+
+### How to Cut a Release
+
+1. **Ensure everything is green**
+
+   ```bash
+   go test ./... -race
+   go vet ./...
+   go build ./...
+   go build ./examples/...
+   go mod tidy
+   ```
+
+   All tests must pass with the race detector enabled. There should be no
+   uncommitted changes after `go mod tidy`.
+
+2. **Update CHANGELOG.md**
+
+   Add a new version section following the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
+   format. Move items from `[Unreleased]` if present, or document the changes
+   under the appropriate headings (`Added`, `Changed`, `Deprecated`, `Removed`,
+   `Fixed`, `Security`).
+
+3. **Commit and tag**
+
+   ```bash
+   git add CHANGELOG.md
+   git commit -s -m "release: vX.Y.Z"
+   git tag vX.Y.Z
+   git push origin main --tags
+   ```
+
+4. **Create the GitHub release**
+
+   ```bash
+   gh release create vX.Y.Z \
+     --title "vX.Y.Z" \
+     --notes "$(awk '/^## \[X.Y.Z\]/,/^## \[/' CHANGELOG.md | head -n -1)" \
+     --repo a3tai/openclaw-go
+   ```
+
+   Or use the GitHub UI: go to **Releases → Draft a new release**, select the
+   tag, paste the CHANGELOG section as release notes, and publish.
+
+### Semantic Versioning Commitment (post-1.0.0)
+
+This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
+strictly from v1.0.0 onward:
+
+- **Patch** (`vX.Y.Z+1`): backwards-compatible bug fixes only. No new exported
+  symbols, no signature changes.
+- **Minor** (`vX.Y+1.0`): new backwards-compatible functionality. New exported
+  functions, types, or methods. Existing callers are unaffected.
+- **Major** (`vX+1.0.0`): breaking changes to the public API. This requires a
+  module path change (e.g., `github.com/a3tai/openclaw-go/v2`) per Go module
+  conventions. Breaking changes should be rare and discussed in issues first.
+
+When in doubt, bump minor rather than major — adding is non-breaking, changing
+or removing is breaking.

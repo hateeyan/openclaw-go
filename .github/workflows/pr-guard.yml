@@ -55,11 +55,11 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.24'
-
+          
       - name: Install golangci-lint
         run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.64.8
 
-      - name: golangci-lint
+      - name: Run golangci-lint
         run: golangci-lint run --timeout=5m
 
   # -----------------------------------------------------------------------
@@ -152,7 +152,6 @@ jobs:
           new_files=$(git diff --name-only "$base".."$head" -- '*.go' || true)
           for f in $new_files; do
             if [ -f "$f" ]; then
-              # Look for functions with only a return of zero value or empty body
               if grep -Pzo 'func\s+\w+\([^)]*\)[^{]*\{\s*\n\s*\}' "$f" 2>/dev/null; then
                 echo "::warning::File $f may contain empty function bodies."
               fi
