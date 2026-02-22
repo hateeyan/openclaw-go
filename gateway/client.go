@@ -337,7 +337,12 @@ func (c *Client) readLoop() {
 		case protocol.FrameTypeEvent:
 			var ev protocol.Event
 			if json.Unmarshal(msg, &ev) == nil && c.opts.onEvent != nil {
-				c.opts.onEvent(ev)
+				// Dispatch asynchronously so the readLoop never blocks on
+				// a slow event handler (e.g. manager's handleGatewayEvent
+				// acquiring locks or writing to a buffered channel). Blocking
+				// here would stall all WebSocket reads, causing stream
+				// deltas and finals to queue up behind slow handlers.
+				go c.opts.onEvent(ev)
 			}
 
 		case protocol.FrameTypeRequest:
