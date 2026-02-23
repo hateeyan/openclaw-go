@@ -13,6 +13,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/a3tai/openclaw-go/identity"
 	"github.com/a3tai/openclaw-go/protocol"
 	"github.com/gorilla/websocket"
 )
@@ -249,7 +250,21 @@ func (c *Client) buildConnectParams(challenge *protocol.ConnectChallenge) protoc
 		if challenge != nil {
 			nonce = challenge.Nonce
 		}
-		params.Device = c.opts.deviceSigner(nonce)
+		// Build the signing params from the connect request fields so the
+		// signer can construct the v2 pipe-delimited auth payload.
+		scopeStrs := make([]string, len(c.opts.scopes))
+		for i, s := range c.opts.scopes {
+			scopeStrs[i] = string(s)
+		}
+		sp := identity.SigningParams{
+			ClientID:   c.opts.clientInfo.ID,
+			ClientMode: c.opts.clientInfo.Mode,
+			Role:       string(c.opts.role),
+			Scopes:     scopeStrs,
+			Token:      c.opts.token,
+			Nonce:      nonce,
+		}
+		params.Device = c.opts.deviceSigner(sp)
 	} else if c.opts.device != nil {
 		dev := *c.opts.device
 		if challenge != nil {

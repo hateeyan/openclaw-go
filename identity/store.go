@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -54,18 +55,44 @@ type DeviceIdentityProto struct {
 	Nonce     string `json:"nonce,omitempty"`
 }
 
-// BuildDeviceIdentity creates a signed DeviceIdentity for the given nonce.
-func (id *Identity) BuildDeviceIdentity(nonce string) *DeviceIdentityProto {
+// SigningParams provides the connect-request fields needed to build the v2
+// device-auth payload that the gateway verifies.
+type SigningParams struct {
+	ClientID   string
+	ClientMode string
+	Role       string
+	Scopes     []string
+	Token      string // bearer or device token sent in auth.token / auth.deviceToken
+	Nonce      string
+}
+
+// BuildDeviceIdentity creates a signed DeviceIdentity for the given params.
+//
+// The gateway verifies a v2 pipe-delimited payload:
+//
+//	v2|deviceId|clientId|clientMode|role|scopes|signedAtMs|token|nonce
+//
+// Ed25519 signs the raw UTF-8 payload bytes (no pre-hashing).
+func (id *Identity) BuildDeviceIdentity(p SigningParams) *DeviceIdentityProto {
 	now := time.Now().UnixMilli()
-	msg := fmt.Sprintf("%s:%s:%d", nonce, id.DeviceID, now)
-	h := sha256.Sum256([]byte(msg))
-	sig := ed25519.Sign(id.privateKey, h[:])
+	scopes := strings.Join(p.Scopes, ",")
+	payload := fmt.Sprintf("v2|%s|%s|%s|%s|%s|%d|%s|%s",
+		id.DeviceID,
+		p.ClientID,
+		p.ClientMode,
+		p.Role,
+		scopes,
+		now,
+		p.Token,
+		p.Nonce,
+	)
+	sig := ed25519.Sign(id.privateKey, []byte(payload))
 	return &DeviceIdentityProto{
 		ID:        id.DeviceID,
 		PublicKey: id.PublicKeyB64URL,
 		Signature: base64.RawURLEncoding.EncodeToString(sig),
 		SignedAt:  now,
-		Nonce:     nonce,
+		Nonce:     p.Nonce,
 	}
 }
 
@@ -84,7 +111,8 @@ func (s *Store) LoadOrGenerate() (*Identity, error) {
 var errNotFound = errors.New("keypair not found")
 
 func (s *Store) load() (*Identity, error) {
-	data, err := os.ReadFile(filepath.Join(s.dir, keypairFile))
+	fp := filepath.Join(s.dir, keypairFile)
+	data, err := os.ReadFile(fp)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, errNotFound
@@ -99,10 +127,24 @@ func (s *Store) load() (*Identity, error) {
 	if err != nil {
 		return nil, fmt.Errorf("decode private key: %w", err)
 	}
+	priv := ed25519.NewKeyFromSeed(seed)
+	pub := priv.Public().(ed25519.PublicKey)
+
+	// Re-derive device ID from the public key. Earlier versions truncated the
+	// SHA-256 hash to 16 bytes (32 hex chars) instead of the full 32 bytes
+	// (64 hex chars) that the gateway expects. Fix stored identity on load.
+	h := sha256.Sum256(pub)
+	correctID := fmt.Sprintf("%x", h[:])
+	if kp.DeviceID != correctID {
+		kp.DeviceID = correctID
+		if updated, err := json.MarshalIndent(kp, "", "  "); err == nil {
+			_ = os.WriteFile(fp, updated, 0600)
+		}
+	}
 	return &Identity{
-		DeviceID:        kp.DeviceID,
+		DeviceID:        correctID,
 		PublicKeyB64URL: kp.PublicKey,
-		privateKey:      ed25519.NewKeyFromSeed(seed),
+		privateKey:      priv,
 	}, nil
 }
 
@@ -113,7 +155,7 @@ func (s *Store) generate() (*Identity, error) {
 	}
 	pubB64 := base64.RawURLEncoding.EncodeToString(pub)
 	h := sha256.Sum256(pub)
-	deviceID := fmt.Sprintf("%x", h[:16])
+	deviceID := fmt.Sprintf("%x", h[:])
 	kp := keypairJSON{
 		DeviceID:   deviceID,
 		PublicKey:  pubB64,

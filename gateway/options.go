@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/a3tai/openclaw-go/identity"
 	"github.com/a3tai/openclaw-go/protocol"
 )
 
@@ -17,16 +18,16 @@ type options struct {
 	password string
 
 	// Client identity
-	clientInfo  protocol.ClientInfo
-	role        protocol.Role
-	scopes      []protocol.Scope
-	caps        []string
-	commands    []string
-	permissions map[string]bool
-	device        *protocol.DeviceIdentity
-	deviceSigner func(nonce string) *protocol.DeviceIdentity
-	locale      string
-	userAgent   string
+	clientInfo   protocol.ClientInfo
+	role         protocol.Role
+	scopes       []protocol.Scope
+	caps         []string
+	commands     []string
+	permissions  map[string]bool
+	device       *protocol.DeviceIdentity
+	deviceSigner func(p identity.SigningParams) *protocol.DeviceIdentity
+	locale       string
+	userAgent    string
 
 	// TLS
 	tlsConfig *tls.Config

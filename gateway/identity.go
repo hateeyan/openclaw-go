@@ -8,14 +8,14 @@ import (
 // WithIdentity configures the client to authenticate using a device keypair.
 // If deviceToken is non-empty, it overrides the bearer token for this connect
 // (the device uses its issued token instead of the shared gateway token).
-// The identity is used to sign the server's challenge nonce.
+// The identity is used to sign the v2 device-auth payload.
 func WithIdentity(id *identity.Identity, deviceToken string) Option {
 	return func(o *options) {
 		if deviceToken != "" {
 			o.token = deviceToken
 		}
-		o.deviceSigner = func(nonce string) *protocol.DeviceIdentity {
-			proto := id.BuildDeviceIdentity(nonce)
+		o.deviceSigner = func(p identity.SigningParams) *protocol.DeviceIdentity {
+			proto := id.BuildDeviceIdentity(p)
 			return &protocol.DeviceIdentity{
 				ID:        proto.ID,
 				PublicKey: proto.PublicKey,
