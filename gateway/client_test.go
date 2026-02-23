@@ -1002,6 +1002,58 @@ func TestReadLoopEventNoHandler(t *testing.T) {
 	time.Sleep(100 * time.Millisecond)
 }
 
+// --- readLoop: event handler is async (slow handler doesn't block) ---
+
+func TestReadLoopEventAsync(t *testing.T) {
+	mg, wsURL, cleanup := startMockGateway(t)
+	defer cleanup()
+
+	slowBlock := make(chan struct{})
+	fastSeen := make(chan struct{})
+
+	client := NewClient(
+		WithToken("tok"),
+		WithConnectTimeout(5*time.Second),
+		WithOnEvent(func(ev protocol.Event) {
+			switch ev.EventName {
+			case "slow":
+				<-slowBlock
+			case "fast":
+				select {
+				case <-fastSeen:
+				default:
+					close(fastSeen)
+				}
+			}
+		}),
+	)
+	defer client.Close()
+	defer close(slowBlock)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := client.Connect(ctx, wsURL); err != nil {
+		t.Fatalf("Connect: %v", err)
+	}
+
+	mg.waitReady(t)
+	mg.mu.Lock()
+	conn := mg.conns[len(mg.conns)-1]
+	mg.mu.Unlock()
+
+	slowData, _ := protocol.MarshalEvent("slow", map[string]string{})
+	fastData, _ := protocol.MarshalEvent("fast", map[string]string{})
+	conn.WriteMessage(websocket.TextMessage, slowData)
+	conn.WriteMessage(websocket.TextMessage, fastData)
+
+	select {
+	case <-fastSeen:
+	case <-time.After(2 * time.Second):
+		t.Fatal("fast event not handled while slow handler blocked")
+	}
+}
+
 // --- readLoop: invoke without onInvoke handler (no panic) ---
 
 func TestReadLoopInvokeNoHandler(t *testing.T) {

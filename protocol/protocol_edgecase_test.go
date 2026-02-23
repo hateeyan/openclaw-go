@@ -235,6 +235,14 @@ func TestParseFrameWithMissingTypeField(t *testing.T) {
 	}
 }
 
+// TestParseFrameWithNonStringType tests ParseFrame when type is not a string.
+func TestParseFrameWithNonStringType(t *testing.T) {
+	input := `{"type":123}`
+	if _, err := ParseFrame([]byte(input)); err == nil {
+		t.Fatal("expected error for non-string type")
+	}
+}
+
 // TestUnmarshalRequestWithMissingFields tests UnmarshalRequest with minimal data.
 func TestUnmarshalRequestWithMissingFields(t *testing.T) {
 	input := `{"type":"req"}`
@@ -339,5 +347,44 @@ func TestHealthEventWithNilChannels(t *testing.T) {
 
 	if !got.OK {
 		t.Error("ok = false")
+	}
+}
+
+// TestChatEventMessageStringPayload ensures string message payloads round-trip.
+func TestChatEventMessageStringPayload(t *testing.T) {
+	input := `{"runId":"run-1","sessionKey":"main","seq":1,"state":"final","message":"hello","usage":{"promptTokens":1}}`
+	var ev ChatEvent
+	if err := json.Unmarshal([]byte(input), &ev); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	var msg string
+	if err := json.Unmarshal(ev.Message, &msg); err != nil {
+		t.Fatalf("unmarshal message: %v", err)
+	}
+	if msg != "hello" {
+		t.Errorf("message = %q", msg)
+	}
+	var usage map[string]any
+	if err := json.Unmarshal(ev.Usage, &usage); err != nil {
+		t.Fatalf("unmarshal usage: %v", err)
+	}
+	if usage["promptTokens"] != float64(1) {
+		t.Errorf("usage.promptTokens = %v", usage["promptTokens"])
+	}
+}
+
+// TestChatEventMessageObjectPayload ensures object message payloads round-trip.
+func TestChatEventMessageObjectPayload(t *testing.T) {
+	input := `{"runId":"run-2","sessionKey":"main","seq":2,"state":"delta","message":{"role":"assistant","content":"hi"}}`
+	var ev ChatEvent
+	if err := json.Unmarshal([]byte(input), &ev); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	var msg map[string]string
+	if err := json.Unmarshal(ev.Message, &msg); err != nil {
+		t.Fatalf("unmarshal message: %v", err)
+	}
+	if msg["content"] != "hi" {
+		t.Errorf("content = %q", msg["content"])
 	}
 }
