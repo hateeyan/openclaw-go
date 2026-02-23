@@ -121,6 +121,28 @@ func TestCreateWithItems(t *testing.T) {
 	}
 }
 
+func TestCreateMetadataStripping(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, _ := io.ReadAll(r.Body)
+		if strings.Contains(string(body), "\"metadata\"") {
+			t.Errorf("metadata should be omitted when empty: %s", string(body))
+		}
+		resp := Response{ID: "resp_meta", Object: "response", Status: "completed"}
+		json.NewEncoder(w).Encode(resp)
+	}))
+	defer srv.Close()
+
+	client := &Client{BaseURL: srv.URL, Token: "tok"}
+	_, err := client.Create(context.Background(), Request{
+		Model:    "openclaw",
+		Input:    InputFromString("hi"),
+		Metadata: map[string]string{},
+	})
+	if err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+}
+
 func TestCreateWithToolCall(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		resp := Response{
